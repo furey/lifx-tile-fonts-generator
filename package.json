@@ -1,0 +1,16 @@
+{
+  "name": "lifx-tile-font-generator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "canvas": "^2.6.0",
+    "chalk": "^2.4.2",
+    "dotenv": "^8.2.0",
+    "fs-extra": "^8.1.0",
+    "lodash.isequal": "^4.5.0"
+  }
+}
