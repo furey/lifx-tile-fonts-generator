@@ -2,6 +2,15 @@
 
 Font generator for the [lifx-tile-fonts](https://github.com/furey/lifx-tile-fonts) repository. ⚙️🔠
 
+## Contents
+
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Usage](#usage)
+- [Fonts](#fonts)
+- [License](#license)
+
 ## Requirements
 
 - [`node -v`](https://nodejs.org/en/download/current/) >= `v12.10.*`
