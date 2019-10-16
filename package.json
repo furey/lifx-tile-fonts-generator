@@ -1,7 +1,7 @@
 {
   "name": "lifx-tile-font-generator",
   "version": "1.0.0",
-  "description": "",
+  "description": "Font generator for the https://github.com/furey/lifx-tile-fonts repository.",
   "main": "index.js",
   "keywords": [
     "lifx",
