@@ -3,8 +3,17 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "lifx",
+    "tile",
+    "font",
+    "generator",
+    "node",
+    "nodejs",
+    "javascript"
+  ],
+  "author": "James Furey (https://github.com/furey)",
+  "url": "https://github.com/furey",
   "license": "ISC",
   "dependencies": {
     "canvas": "^2.6.0",
