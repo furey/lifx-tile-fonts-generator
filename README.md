@@ -1,6 +1,6 @@
 # lifx-tile-fonts-generator
 
-Font generator for the [lifx-tile-fonts](https://github.com/furey/lifx-tile-fonts) repository.
+Font generator for the [lifx-tile-fonts](https://github.com/furey/lifx-tile-fonts) repository. ⚙️🔠
 
 ## Requirements
 
