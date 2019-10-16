@@ -160,8 +160,8 @@ const toCharModule = (char, colors) => {
   }
   const width = right - (left - 1)
   const height = bottom - (top - 1)
-  let js = 'module.exports = [\n'
-  js += tab() + `char: \`${char}\`,\n`
+  let js = 'module.exports = {\n'
+  js += tab() + `char: \`${encodeChar(char)}\`,\n`
   js += tab() + 'bounds: {\n'
   js += tab(2) + `left: ${left},\n`
   js += tab(2) + `right: ${right},\n`
@@ -169,15 +169,20 @@ const toCharModule = (char, colors) => {
   js += tab(2) + `bottom: ${bottom},\n`
   js += tab(2) + `width: ${width},\n`
   js += tab(2) + `height: ${height}\n`
-  js += tab() + '}\n'
-  js += tab() + 'colors: {\n'
+  js += tab() + '},\n'
+  js += tab() + 'colors: [\n'
   for (let i = 0; i < colors.length; i += 8) {
     const row = colors.slice(i, i + 8)
     js += tab(2) + row.map(_ => `'${_}',`).join('') + '\n'
   }
-  js += tab() + '}\n'
-  js += ']'
+  js += tab() + ']\n'
+  js += '}'
   return js
+}
+
+const encodeChar = char => {
+  if (char === '\\') return '\\\\'
+  return char
 }
 
 const outputFontFile = async (group, font) => {
