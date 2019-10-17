@@ -2,19 +2,18 @@ module.exports = fonts = [
   {
     name: 'echolevel',
     source: 'https://github.com/echolevel/protracker-font',
-    path: 'fonts/input/protracker-font',
+    path: 'protracker-font',
     fonts: [
       {
         name: 'protracker',
         path: 'protracker.ttf',
-        y: 7
       },
     ]
   },
   {
     name: 'oldschool-pc-fonts',
     source: 'https://int10h.org/oldschool-pc-fonts/',
-    path: 'fonts/input/ultimate_oldschool_pc_font_pack_v1.0/Px437 (TrueType - DOS charset)',
+    path: 'ultimate_oldschool_pc_font_pack_v1.0/Px437 (TrueType - DOS charset)',
     fonts: [
       {
         name: 'ami',

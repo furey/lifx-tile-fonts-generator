@@ -12,11 +12,11 @@ const inspect = value =>
 const w = 8, h = 8
 
 const chars =
-  `!"#$%&'()*+,-./` +
-  `0123456789:;<=>` +
-  `?@ABCDEFGHIJKLM` +
-  `NOPQRSTUVWXYZ[\\` +
-  `]^|~•`
+  `ABCDEFGHIJKLMNO` +
+  `PQRSTUVWXYZ0123` +
+  `456789[]()<>!?@` +
+  `#$%&'"*+-=^~•:;` +
+  `.,|/\\`
 
 const toReplace = `_‘’“”`
 
@@ -25,6 +25,7 @@ const rgbaKeys = ['r', 'g', 'b', 'a']
 const white = { r: 255, g: 255, b: 255, a: 255 }
 
 const run = async () => {
+  await validateInputPath()
   await clearOutput()
   for (let i = 0; i < fonts.length; i++) {
     const group = fonts[i]
@@ -33,11 +34,20 @@ const run = async () => {
   outputBaseModule(fonts)
 }
 
+const validateInputPath = async () => {
+  const inputPath = getInputPath()
+  if (!(await fs.pathExists(inputPath))) validationError(`Input path [${inputPath}] does not exist.`)
+  if (!(await fs.stat(inputPath)).isDirectory()) validationError(`Input path [${inputPath}] is not a directory.`)
+}
+
+const validationError = message =>
+  exit(message)
+
 const clearOutput = async () =>
   await fs.remove(getOutputPath())
 
 const processGroup = async group => {
-  await trimGroupFonts(group)
+  if (process.env.TRIM_FONTS) await trimFonts(group)
   for (let i = 0; i < group.fonts.length; i++) {
     const font = group.fonts[i]
     await processFont(group, font)
@@ -45,9 +55,9 @@ const processGroup = async group => {
   await outputGroupModule(group)
 }
 
-const trimGroupFonts = async group => {
+const trimFonts = async group => {
   const whitelist = group.fonts.map(font => getFontPath(group, font))
-  const groupPath = path.resolve(group.path)
+  const groupPath = getInputPath(group.path)
   const groupFiles = await fs.readdir(groupPath)
   for (let i = 0; i < groupFiles.length; i++) {
     const groupFile = groupFiles[i]
@@ -77,10 +87,10 @@ const processFont = async (group, font) => {
 }
 
 const getFontPath = (group, font) =>
-  path.resolve(group.path, font.path)
+  getInputPath(group.path, font.path)
 
 const processChar = async ({ group, font, charIndex }) => {
-  const { x = 0, y = 8, size = '8px' } = font
+  const x = 0, y = 8, size = '8px'
   const canvas = createCanvas(w, h)
   const ctx = canvas.getContext('2d')
   ctx.fillStyle = 'black'
@@ -90,15 +100,16 @@ const processChar = async ({ group, font, charIndex }) => {
   const char = chars[charIndex]
   ctx.fillText(char, x, y)
   const { data } = ctx.getImageData(0, 0, w, h)
-  const colors = toColors(data)
-  previewChar(group, font, char, colors)
+  const colors = getColors(data)
+  const bounds = getBounds(colors)
+  previewChar(group, font, char, colors, bounds)
   const outputImagePath = getOutputImagePath(group.name, font.name, `chars/${charIndex}.png`)
   await fs.outputFile(outputImagePath, canvas.toBuffer())
   const outputModulePath = getOutputModulePath(group.name, font.name, `chars/${charIndex}.js`)
-  await fs.outputFile(outputModulePath, toCharModule(char, colors))
+  await fs.outputFile(outputModulePath, getCharModule(char, colors, bounds))
 }
 
-const toColors = data =>
+const getColors = data =>
   Object.values(data.reduce((colors, value, index) => {
     const pixelIndex = Math.floor(index / 4)
     const rgbaIndex = index % 4
@@ -107,20 +118,7 @@ const toColors = data =>
     return colors
   }, {})).map(rgba => isEqual(rgba, white) ? 'X' : ' ')
 
-const previewChar = (group, font, char, colors) => {
-  console.log(`\n`)
-  console.log(chalk.yellow(`Group: ${chalk.white(group.name)}`))
-  console.log(chalk.yellow(`Font: ${chalk.white(font.name)}`))
-  console.log(chalk.yellow(`Char: ${chalk.white(char)}`))
-  for (let i = 0; i < colors.length; i += 8) {
-    const row = colors.slice(i, i + 8)
-    console.log(row.map(_ =>
-      _ === 'X' ? chalk.white('█') : chalk.gray('·')
-    ).join(''))
-  }
-}
-
-const toCharModule = (char, colors) => {
+const getBounds = colors => {
   let left, right, top, bottom
   left:
   for (let c = 0; c < 8; c++) {
@@ -160,15 +158,32 @@ const toCharModule = (char, colors) => {
   }
   const width = right - (left - 1)
   const height = bottom - (top - 1)
+  return { left, right, top, bottom, width, height }
+}
+
+const previewChar = (group, font, char, colors, bounds) => {
+  console.log(`\n`)
+  console.log(chalk.yellow('Group:'), group.name)
+  console.log(chalk.yellow('Font:'), font.name)
+  console.log(chalk.yellow('Char:'), char)
+  console.log(chalk.yellow('Bounds:'), bounds)
+  for (let i = 0; i < colors.length; i += 8) {
+    const row = colors.slice(i, i + 8)
+    console.log(row.map(_ =>
+      _ === 'X' ? chalk.white('█') : chalk.gray('·')
+    ).join(''))
+  }
+}
+
+const getCharModule = (char, colors, bounds) => {
   let js = 'module.exports = {\n'
   js += tab() + `char: \`${encodeChar(char)}\`,\n`
   js += tab() + 'bounds: {\n'
-  js += tab(2) + `left: ${left},\n`
-  js += tab(2) + `right: ${right},\n`
-  js += tab(2) + `top: ${top},\n`
-  js += tab(2) + `bottom: ${bottom},\n`
-  js += tab(2) + `width: ${width},\n`
-  js += tab(2) + `height: ${height}\n`
+  const kv = Object.entries(bounds)
+  for (let i = 0; i < kv.length; i++) {
+    const [key, value] = kv[i];
+    js += tab(2) + `${key}: ${value},\n`
+  }
   js += tab() + '},\n'
   js += tab() + 'colors: [\n'
   for (let i = 0; i < colors.length; i += 8) {
@@ -185,12 +200,11 @@ const encodeChar = char => {
   return char
 }
 
-const outputFontFile = async (group, font) => {
-  await fs.outputFile(getOutputPath('ttf', group.name, `${font.name}.ttf`), getFontPath(group, font))
-}
+const outputFontFile = async (group, font) => 
+  await fs.outputFile(getOutputFontFilePath(group, font), getFontPath(group, font))
 
 const outputFontImage = async (group, font) => {
-  const { x = 0, y = 8, size = '8px' } = font
+  const x = 0, y = 8, size = '8px'
   const w = 15 * 8
   const h = Math.ceil(chars.length / 15) * 8
   const canvas = createCanvas(w, h)
@@ -207,13 +221,13 @@ const outputFontImage = async (group, font) => {
   await fs.outputFile(outputImagePath, canvas.toBuffer())
 }
 
-const outputFontModule = async (group, font) => {
-  const outputModulePath = getOutputModulePath(group.name, font.name, 'index.js')
-  await fs.outputFile(outputModulePath, getFontModule())
-}
+const outputFontModule = async (group, font) =>
+  await fs.outputFile(getOutputFontModulePath(group, font), getFontModule(group, font))
 
-const getFontModule = () => {
+const getFontModule = (group, font) => {
   let js = 'module.exports = {\n'
+  js += tab() + `name: '${font.name}',\n`
+  js += tab() + `path: '${getFontFilePath(group, font)}',\n`
   js += tab() + 'chars: {\n'
   for (let i = 0; i < chars.length; i++) {
     js += tab(2) + `'${i}': require('./chars/${i}.js'),\n`
@@ -223,13 +237,16 @@ const getFontModule = () => {
   return js
 }
 
-const outputGroupModule = async group => {
-  const outputModulePath = getOutputModulePath(group.name, 'index.js')
-  await fs.outputFile(outputModulePath, getGroupModule(group))
-}
+const getFontFilePath = (group, font) =>
+  getOutputFontFilePath(group, font)
+    .replace(RegExp(`^${getOutputPath()}\/`), '')
+
+const outputGroupModule = async group =>
+  await fs.outputFile(getOutputModulePath(group.name, 'index.js'), getGroupModule(group))
 
 const getGroupModule = group => {
   let js = 'module.exports = {\n'
+  js += tab() + `name: '${group.name}',\n`
   js += tab() + `source: '${group.source}',\n`
   js += tab() + 'fonts: {\n'
   for (let i = 0; i < group.fonts.length; i++) {
@@ -241,10 +258,8 @@ const getGroupModule = group => {
   return js
 }
 
-const outputBaseModule = async fonts => {
-  const outputModulePath = getOutputModulePath('index.js')
-  await fs.outputFile(outputModulePath, getBaseModule(fonts))
-}
+const outputBaseModule = async fonts => 
+  await fs.outputFile(getOutputModulePath('index.js'), getBaseModule(fonts))
 
 const getBaseModule = fonts => {
   let js = 'module.exports = {\n'
@@ -259,6 +274,15 @@ const getBaseModule = fonts => {
   return js
 }
 
+const getOutputFontFilePath = (group, font) =>
+  getOutputFilePath(group.name, `${font.name}.ttf`)
+
+const getOutputFontModulePath = (group, font) =>
+  getOutputModulePath(group.name, font.name, 'index.js')
+
+const getOutputFilePath = (...params) =>
+  getOutputPath('ttf', ...params)
+
 const getOutputImagePath = (...params) =>
   getOutputPath('png', ...params)
 
@@ -268,10 +292,16 @@ const getOutputModulePath = (...params) =>
 const getOutputPath = (...params) =>
   path.resolve(process.env.OUTPUT_PATH || './fonts/output', ...params)
 
+const getInputPath = (...params) =>
+  path.resolve(process.env.INPUT_PATH || './fonts/input', ...params)
+
+const exit = async message => {
+  if (message) console.log(chalk.red(message))
+  console.log(chalk.gray('Exiting…'))
+  process.exit()
+}
+
 const tab = (total = 1) =>
   '  '.repeat(total)
 
 run().catch(console.error)
-
-
-

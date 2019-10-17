@@ -29,8 +29,17 @@ $ npm ci
 Add the following `.env` file to your repository root:
 
 ```ini
-OUTPUT_PATH=path/to/my/output/directory
+INPUT_PATH="path/to/my/input/directory"
+OUTPUT_PATH="path/to/my/output/directory"
 ```
+
+### `INPUT_PATH`
+
+Set `INPUT_PATH` to your intended output destination.
+
+If not set, `INPUT_PATH` defaults to `'./fonts/input'`.
+
+### `OUTPUT_PATH`
 
 Set `OUTPUT_PATH` to your intended output destination.
 
@@ -42,42 +51,45 @@ If not set, `OUTPUT_PATH` defaults to `'./fonts/output'`.
 $ node .
 
 Group: oldschool-pc-fonts
-Font: verite
+Font: v-tech
 Char: A
+Bounds: { left: 0, right: 5, top: 1, bottom: 7, width: 6, height: 7 }
 ········
-·█████··
-██···██·
-██···██·
-███████·
-██···██·
-██···██·
-██···██·
+··██····
+·█··█···
+█····█··
+█····█··
+██████··
+█····█··
+█····█··
 
 
 Group: oldschool-pc-fonts
-Font: verite
+Font: v-tech
 Char: B
+Bounds: { left: 0, right: 5, top: 1, bottom: 7, width: 6, height: 7 }
 ········
-██████··
-·██··██·
-·██··██·
-·█████··
-·██··██·
-·██··██·
-██████··
+█████···
+·█···█··
+·█···█··
+·████···
+·█···█··
+·█···█··
+█████···
 
 
 Group: oldschool-pc-fonts
-Font: verite
+Font: v-tech
 Char: C
+Bounds: { left: 0, right: 5, top: 1, bottom: 7, width: 6, height: 7 }
 ········
-·█████··
-██···██·
-██······
-██······
-██······
-██···██·
-·█████··
+··███···
+·█···█··
+█·······
+█·······
+█·······
+·█···█··
+··███···
 
 // etc…
 ```
