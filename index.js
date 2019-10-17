@@ -263,7 +263,7 @@ const outputBaseModule = async fonts =>
 
 const getBaseModule = fonts => {
   let js = 'module.exports = {\n'
-  js += tab() + `chars: \`${chars}\`,\n`
+  js += tab() + `chars: \`${chars.split('').map(char => encodeChar(char)).join('')}\`,\n`
   js += tab() + 'groups: {\n'
   for (let i = 0; i < fonts.length; i++) {
     const group = fonts[i]
