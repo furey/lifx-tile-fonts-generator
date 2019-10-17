@@ -35,7 +35,7 @@ OUTPUT_PATH="path/to/my/output/directory"
 
 ### `INPUT_PATH`
 
-Set `INPUT_PATH` to your intended output destination.
+Set `INPUT_PATH` to your intended input destination.
 
 If not set, `INPUT_PATH` defaults to `'./fonts/input'`.
 
