@@ -29,15 +29,8 @@ $ npm ci
 Add the following `.env` file to your repository root:
 
 ```ini
-INPUT_PATH="path/to/my/input/directory"
 OUTPUT_PATH="path/to/my/output/directory"
 ```
-
-### `INPUT_PATH`
-
-Set `INPUT_PATH` to your intended input destination.
-
-If not set, `INPUT_PATH` defaults to `'./fonts/input'`.
 
 ### `OUTPUT_PATH`
 

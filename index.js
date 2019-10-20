@@ -25,7 +25,6 @@ const rgbaKeys = ['r', 'g', 'b', 'a']
 const white = { r: 255, g: 255, b: 255, a: 255 }
 
 const run = async () => {
-  await validateInputPath()
   await clearOutput()
   for (let i = 0; i < fonts.length; i++) {
     const group = fonts[i]
@@ -33,15 +32,6 @@ const run = async () => {
   }
   outputBaseModule(fonts)
 }
-
-const validateInputPath = async () => {
-  const inputPath = getInputPath()
-  if (!(await fs.pathExists(inputPath))) validationError(`Input path [${inputPath}] does not exist.`)
-  if (!(await fs.stat(inputPath)).isDirectory()) validationError(`Input path [${inputPath}] is not a directory.`)
-}
-
-const validationError = message =>
-  exit(message)
 
 const clearOutput = async () =>
   await fs.remove(getOutputPath())
@@ -296,7 +286,7 @@ const getOutputPath = (...params) =>
   path.resolve(process.env.OUTPUT_PATH || './fonts/output', ...params)
 
 const getInputPath = (...params) =>
-  path.resolve(process.env.INPUT_PATH || './fonts/input', ...params)
+  path.resolve('./fonts/input', ...params)
 
 const exit = async message => {
   if (message) console.log(chalk.red(message))
