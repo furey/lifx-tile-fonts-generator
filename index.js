@@ -201,7 +201,10 @@ const encodeChar = char => {
 }
 
 const outputFontFile = async (group, font) => 
-  await fs.outputFile(getOutputFontFilePath(group, font), getFontPath(group, font))
+  await fs.outputFile(
+    getOutputFontFilePath(group, font),
+    await fs.readFile(getFontPath(group, font))
+  )
 
 const outputFontImage = async (group, font) => {
   const x = 0, y = 8, size = '8px'
